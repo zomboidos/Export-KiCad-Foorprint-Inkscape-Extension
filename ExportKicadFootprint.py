@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import inkex
 import sys
+
+from os import path as os_path
 from tkinter import filedialog
 from inkex import paths
 from inkex import transforms
@@ -16,13 +18,13 @@ class TemplateEffect(inkex.Effect):
     def __init__(self):
         inkex.Effect.__init__(self)
     def effect(self):
-        data = "(module logo_sam (layer F.Cu) (tedit 6006CE23)" +
-               " (fp_text reference REF** (at 0 0.5) (layer F.SilkS) hide" +
-               "     (effects (font (size 1 1) (thickness 0.15)))" +
-               " )" +
-               " (fp_text value logo_sam (at 0 -0.5) (layer F.Fab)" +
-               "     (effects (font (size 1 1) (thickness 0.15)))" +
-               " )"
+        data = "(module $my_footprint$ (layer F.Cu) (tedit 6006CE23)\n" \
+               " (fp_text reference REF** (at 0 0.5) (layer F.SilkS) hide\n" \
+               "     (effects (font (size 1 1) (thickness 0.15)))\n" \
+               " )\n" \
+               " (fp_text value $my_footprint$ (at 0 -0.5) (layer F.Fab)\n" \
+               "     (effects (font (size 1 1) (thickness 0.15)))\n" \
+               " )\n"
 
         cu_layer = ""
         mask_layer = ""
@@ -41,15 +43,16 @@ class TemplateEffect(inkex.Effect):
                 mask_layer = line + ")\n\t(layer F.Mask) (width 0.01))\n"
                 data += cu_layer
                 data += mask_layer
-            break
-        else:
+        if not self.selected.items():
             inkex.errormsg(_("Please select some paths. And don't forget to convert objects to paths."))
             return
 
+        data += ")\n"
         ext = 'kicad_mod'
         ftypes = [('KiCad Footpring', '*.' + ext)]
         with filedialog.asksaveasfile(filetypes=ftypes, defaultextension=ext) as file:
-            file.write(data)
+            file.write(data.replace("$my_footprint$", os_path.splitext(os_path.basename(file.name))[0]))
+
 
 TemplateEffect().run()
 sys.exit(0) #helps to keep the selection
