@@ -51,7 +51,8 @@ class TemplateEffect(inkex.Effect):
         ext = 'kicad_mod'
         ftypes = [('KiCad Footpring', '*.' + ext)]
         with filedialog.asksaveasfile(filetypes=ftypes, defaultextension=ext) as file:
-            file.write(data.replace("$my_footprint$", os_path.splitext(os_path.basename(file.name))[0]))
+            filename = os_path.splitext(os_path.basename(file.name))[0]
+            file.write(data.replace("$my_footprint$", filename))
 
 
 TemplateEffect().run()
